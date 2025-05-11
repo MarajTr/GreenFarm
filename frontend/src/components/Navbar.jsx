@@ -1,11 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import logo from '../image/logo.png';
-import { FaUserCircle } from 'react-icons/fa';
+import { FaUserCircle, FaShoppingCart } from 'react-icons/fa';
 import { jwtDecode } from 'jwt-decode';
-import Cart from './Cart';
 
-function Navbar() {
+function Navbar({ onCartClick, cartItems }) {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
@@ -26,7 +25,7 @@ function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     setUser(null);
-    setDropdownOpen(false); // Close the dropdown
+    setDropdownOpen(false);
     navigate('/');
   };
 
@@ -37,29 +36,39 @@ function Navbar() {
   return (
     <div className="font-sans">
       <header className="flex justify-between items-center p-4 bg-white shadow-md">
+        {/* Logo */}
         <div className="flex items-center space-x-2">
           <img src={logo} alt="Logo" className="w-10 h-10" />
           <span className="text-xl font-semibold">Green Farming</span>
         </div>
-         
-        {/* Nav Menu */}
+
+        {/* Navigation Links */}
         <nav className="space-x-6 md:block">
           <Link to="/" className="text-green-700 font-medium hover:underline">Home</Link>
           <Link to="/dashboard" className="text-green-700 font-medium hover:underline">Dashboard</Link>
           <Link to="/bookings" className="text-green-700 font-medium hover:underline">Bookings</Link>
 
-          {/* Show Add Product only for users with 'admin' role */}
           {user && user.role === 'admin' && (
             <Link to="/add-product" className="text-green-700 font-medium hover:underline">Add Product</Link>
           )}
 
           <Link to="/help" className="text-green-700 font-medium hover:underline">Help</Link>
           <Link to="/contact" className="text-green-700 font-medium hover:underline">Contact Us</Link>
-          <Link to="/contact" className="text-green-700 font-medium hover:underline"></Link>
         </nav>
 
-        {/* Right Side Buttons */}
-        <div className="relative">
+        {/* Right side: Cart + User */}
+        <div className="relative flex items-center space-x-4">
+          {/* Cart icon */}
+          <div className="relative cursor-pointer" onClick={onCartClick}>
+            <FaShoppingCart className="text-2xl text-green-700" />
+            {cartItems > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
+                {cartItems}
+              </span>
+            )}
+          </div>
+
+          {/* User profile or Auth buttons */}
           {!user ? (
             <div className="space-x-2">
               <button
@@ -73,12 +82,6 @@ function Navbar() {
                 onClick={() => navigate('/register')}
               >
                 Sign Up
-              </button>
-              <button
-                className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700"
-                onClick={() => navigate('/register')}
-              >
-                
               </button>
             </div>
           ) : (

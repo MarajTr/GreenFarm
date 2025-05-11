@@ -52,6 +52,26 @@ useEffect(() => {
   fetchData();
 }, []);
 
+const deleteItem = async (id) => {
+  setLoading(true);
+  try {
+    const token = localStorage.getItem('token');
+    await axios.delete(`http://localhost:3000/auth/dashproducts/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // Remove the item from the cart
+    setCartItems(prev => prev.filter(item => item._id !== id)); // Update to match id
+    setSuccess('Item removed from cart and database successfully!');
+  } catch (err) {
+    setError('Failed to remove item from cart');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleRentClick = (equipment) => {
     setLoading(true);

@@ -96,6 +96,7 @@ const AddProduct = () => {
   };
 
   return (
+  
     <Container maxWidth="sm">
       <Box mt={5}>
         <Typography variant="h5" gutterBottom>Add New Equipment</Typography>
