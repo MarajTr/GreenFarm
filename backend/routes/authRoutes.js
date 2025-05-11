@@ -111,9 +111,14 @@ router.get('/admin-only', verifyToken, requireAdmin, async (req, res) => {
 router.post('/products', verifyToken, requireAdmin, async (req, res) => {
   try {
     await connectToDatabase();
-    const newProduct = new Product(req.body);
+
+    const newProduct = new Product({
+      ...req.body,
+      image: req.body.image, // Ensure the image URL is saved
+    });
+
     await newProduct.save();
-    res.status(201).json({ message: "Product added successfully", product: newProduct });
+    res.status(201).json({ message: 'Product added successfully', product: newProduct });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

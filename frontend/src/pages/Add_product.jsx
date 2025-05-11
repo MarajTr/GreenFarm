@@ -37,7 +37,6 @@ const AddProduct = () => {
         formData
       );
 
-      
       setFormData((prev) => ({
         ...prev,
         image: response.data.secure_url 
@@ -52,51 +51,54 @@ const AddProduct = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ 
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert('You must be logged in as an admin to add products.');
-      return;
-    }
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('You must be logged in as an admin to add products.');
+    return;
+  }
 
-    const newProduct = {
-      ...formData,
-      price: `${formData.price}/day`
-    };
-
-    try {
-      const response = await axios.post(
-        'http://localhost:3000/auth/products',
-        newProduct,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-
-      alert('Product added successfully!');
-      console.log('Server response:', response.data);
-
-      // Reset form
-      setFormData({
-        name: '',
-        price: '',
-        description: '',
-        category: 'tractor',
-        image: '',
-        status: 'Available'
-      });
-    } catch (error) {
-      console.error('Error adding product:', error.response?.data || error.message);
-      alert(error.response?.data?.message || 'Failed to add product.');
-    }
+  const newProduct = {
+    ...formData,
+    price: `${formData.price}/day`,
+    image: formData.image, // Ensure the image URL is included
   };
 
+  try {
+    const response = await axios.post(
+      'http://localhost:3000/auth/products',
+      newProduct,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    alert('Product added successfully!');
+    console.log('Server response:', response.data);
+
+    // Reset form
+    setFormData({
+      name: '',
+      price: '',
+      description: '',
+      category: 'tractor',
+      image: '',
+      status: 'Available',
+    });
+  } catch (error) {
+    console.error('Error adding product:', error.response?.data || error.message);
+    alert(error.response?.data?.message || 'Failed to add product.');
+  }
+};
+
+
+
   return (
-  
     <Container maxWidth="sm">
       <Box mt={5}>
         <Typography variant="h5" gutterBottom>Add New Equipment</Typography>
@@ -156,6 +158,16 @@ const AddProduct = () => {
               <img src={formData.image} alt="Uploaded" width="100%" style={{ borderRadius: 8 }} />
             </Box>
           )}
+
+          <TextField
+  label="Image URL"
+  fullWidth
+  margin="normal"
+  value={formData.image}
+  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+  inputProps={{ readOnly: true }} // Use readOnly instead of disabled
+/>
+
 
           <FormControl fullWidth margin="normal">
             <InputLabel>Status</InputLabel>
