@@ -20,7 +20,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloseIcon from '@mui/icons-material/Close';
 
-const Cart = ({ open, onClose, items = [], onRemoveItem, onClearCart }) => {
+const Cart = ({ open, onClose, items = [], onRemoveItem, onClearCart, userId }) => {
   const [showCheckout, setShowCheckout] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [checkoutDetails, setCheckoutDetails] = useState({
@@ -48,13 +48,13 @@ const Cart = ({ open, onClose, items = [], onRemoveItem, onClearCart }) => {
   };
 
   const handleConfirmCheckout = () => {
-    // Validate checkout details
     if (!Object.values(checkoutDetails).every(Boolean)) {
       return;
     }
 
-    // Process checkout
+    // Process checkout with user ID
     console.log('Processing order:', {
+      userId,
       items,
       total: totalAmount,
       ...checkoutDetails
@@ -62,7 +62,6 @@ const Cart = ({ open, onClose, items = [], onRemoveItem, onClearCart }) => {
 
     setShowSuccess(true);
 
-    // Clear cart and reset form
     setTimeout(() => {
       setCheckoutDetails({
         name: '',
@@ -73,9 +72,8 @@ const Cart = ({ open, onClose, items = [], onRemoveItem, onClearCart }) => {
       setShowCheckout(false);
       setShowSuccess(false);
       onClose();
-      // Clear the cart
       onClearCart();
-      localStorage.removeItem('cart');
+      localStorage.removeItem(`cart_${userId}`); // Clear user-specific cart
     }, 2000);
   };
 
