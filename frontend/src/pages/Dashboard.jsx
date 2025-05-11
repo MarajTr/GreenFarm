@@ -15,12 +15,19 @@ import SearchBar from '../components/SearchBar';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
 import Cart from '../components/Cart';
+import jwtDecode from 'jwt-decode';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [cartItems, setCartItems] = useState(() => {
-    // Initialize cart from localStorage
-    const savedCart = localStorage.getItem('cart');
-    return savedCart ? JSON.parse(savedCart) : [];
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded = jwtDecode(token);
+      const savedCart = localStorage.getItem(`cart_${decoded._id}`);
+      return savedCart ? JSON.parse(savedCart) : [];
+    }
+    return [];
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -58,29 +65,28 @@ useEffect(() => {
 
 
   const handleRentClick = (equipment) => {
-    setLoading(true);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    const decoded = jwtDecode(token);
     const cartItem = {
-      id: equipment._id, // Use MongoDB _id
+      id: equipment._id,
       name: equipment.name,
       price: equipment.price,
       description: equipment.description,
       status: equipment.status
     };
 
-    // Update cart in both localStorage and state
-    const currentCart = JSON.parse(localStorage.getItem('cart') || '[]');
+    // Update cart in user-specific storage
+    const currentCart = JSON.parse(localStorage.getItem(`cart_${decoded._id}`) || '[]');
     const updatedCart = [...currentCart, cartItem];
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    localStorage.setItem(`cart_${decoded._id}`, JSON.stringify(updatedCart));
     setCartItems(updatedCart);
 
-    // Create and dispatch a custom event for cart updates
-    const cartUpdateEvent = new CustomEvent('cartUpdate', { 
-      detail: { items: updatedCart } 
-    });
-    window.dispatchEvent(cartUpdateEvent);
-
     setSuccess(`${equipment.name} added to cart successfully!`);
-    setLoading(false);
   };
 
   const handleRemoveFromCart = (itemId) => {
